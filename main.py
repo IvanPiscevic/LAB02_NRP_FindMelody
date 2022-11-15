@@ -10,6 +10,7 @@ print("PATH:", os.environ.get('PATH'))
 
 basic_notes = ['A', 'B', 'C', 'D', 'E', 'F', 'G']  # List of all existing notes
 find_melody = ['E', 'D', 'C', 'D', 'E', 'E', 'E', 'D', 'D', 'D', 'E', 'G', 'G']  # Melody that is trying to be found
+test_melody = ['E', 'D', 'C', 'D', 'E', 'E', 'E', 'D', 'D', 'D', 'E', 'G', 'G']  # Melody that is incorrect
 note_pos_dict = {'A': [], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': []}  # Position dictionary for each note
 IND_SIZE = len(find_melody)  # Size of the target melody
 note_amount = len(basic_notes)  # Size of the existing notes list
@@ -41,23 +42,32 @@ def note_pos(note_pos_dict):
 note_pos_dict = note_pos(note_pos_dict)
 print(note_pos_dict)
 
+
 def random_note():
     note = basic_notes[random.randint(0, note_amount - 1)]
     return note
 
 
 def find_difference_pos(note, counter_pos):
-    value = min(note_pos_dict.get(note), key=lambda x: abs(x - counter_pos))
-    return value
+
+    lst = note_pos_dict.get(note)
+
+    if counter_pos in lst:
+        return 0
+    elif len(lst) == 0:
+        return IND_SIZE * 2
+    else:
+        retValue = lst[min(range(len(lst)), key=lambda i: abs(lst[i] - counter_pos))]
+        return retValue
 
 
 def evaluate_melody(individual):
     fitness_value = 0.0
     counter_pos = 0
 
-    # | (broj_nota - razlika_pozicija)/broj_nota - razlika_ascii | = 13
+    # | (broj_nota - razlika_pozicija)/broj_nota - razlika_ascii | = 169
     for note in individual:
-        fitness_value += abs((note_amount - find_difference_pos(note, counter_pos)) / note_amount -
+        fitness_value += (IND_SIZE - find_difference_pos(note, counter_pos) / IND_SIZE -
                              abs(ord(find_melody[counter_pos]) - ord(note)))
         counter_pos += 1
     return fitness_value
@@ -71,7 +81,7 @@ toolbox.register("attr_note", random_note)
 toolbox.register("individual", tools.initRepeat, creator.Individual,
                  toolbox.attr_note, n=IND_SIZE)
 
-print(evaluate_melody(find_melody))
+print(evaluate_melody(test_melody))
 
 #
 #
